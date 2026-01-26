@@ -5,6 +5,8 @@ plugins {
 	alias(libs.plugins.shadow)
 }
 
+val mappingsAttribute = Attribute.of("net.minecraft.mappings", String::class.java)!!
+
 class ModInfo {
 	val id = property("mod.id").toString()
 	val group = property("mod.group").toString()
@@ -28,7 +30,9 @@ loom {
 
 repositories {
 	mavenCentral()
-	maven("https://maven.spiritstudios.dev/releases/")
+	maven("https://maven.parchmentmc.org/")
+	maven("https://maven.greenhouse.lgbt/releases/")
+	maven("https://maven.greenhouse.lgbt/snapshots/")
 	exclusiveContent {
 		forRepository {
 			maven {
@@ -47,13 +51,21 @@ repositories {
 
 dependencies {
 	minecraft(libs.minecraft)
-	mappings(variantOf(libs.yarn) { classifier("v2") })
+	mappings(loom.layered {
+		officialMojangMappings()
+		parchment(libs.parchment)
+	})
 	modImplementation(libs.fabric.loader)
 
 	modImplementation(libs.fabric.api)
 
-	include(libs.bundles.specter)
-	modImplementation(libs.bundles.specter)
+	modCompileOnlyApi(libs.greenhouse.config.api) {
+		attributes {
+			attribute(mappingsAttribute, "intermediary")
+		}
+	}
+	modRuntimeOnly(libs.greenhouse.config)
+	include(libs.greenhouse.config)
 
 	implementation(libs.jda) { exclude(module = "opus-java") }
 	shadow(libs.jda) { exclude(module = "opus-java") }

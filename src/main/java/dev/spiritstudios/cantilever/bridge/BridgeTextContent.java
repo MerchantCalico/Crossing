@@ -1,37 +1,26 @@
 package dev.spiritstudios.cantilever.bridge;
 
 import com.mojang.serialization.MapCodec;
-import dev.spiritstudios.cantilever.Cantilever;
-import net.minecraft.text.*;
+import net.minecraft.network.chat.*;
 
 import java.util.Optional;
 
-public record BridgeTextContent(Text content) implements TextContent {
-	public static MapCodec<BridgeTextContent> CODEC = MapCodec.assumeMapUnsafe(TextCodecs.CODEC
+public record BridgeTextContent(Component content) implements ComponentContents {
+	public static MapCodec<BridgeTextContent> CODEC = MapCodec.assumeMapUnsafe(ComponentSerialization.CODEC
 		.xmap(BridgeTextContent::new, content -> content.content));
 
-	public static final TextContent.Type<BridgeTextContent> TYPE = new Type<>(
-		CODEC,
-		Cantilever.MODID + ":bridge"
-	);
-
 	@Override
-	public <T> Optional<T> visit(StringVisitable.Visitor<T> visitor) {
-		Optional<T> visitResult = content.visit(visitor);
-		if (visitResult.isEmpty()) {
-			// This is a workaround for the game resolving the Bridge content as empty. Don't ask why!
-			return visitor.accept("");
-		}
-		return visitResult;
+	public <T> Optional<T> visit(FormattedText.ContentConsumer<T> visitor) {
+		return content.visit(visitor);
 	}
 
 	@Override
-	public <T> Optional<T> visit(StringVisitable.StyledVisitor<T> visitor, Style style) {
+	public <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> visitor, Style style) {
 		return content.visit(visitor, style);
 	}
 
 	@Override
-	public Type<?> getType() {
-		return TYPE;
+	public MapCodec<? extends ComponentContents> codec() {
+		return CODEC;
 	}
 }

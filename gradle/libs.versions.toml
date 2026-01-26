@@ -1,39 +1,38 @@
 [versions]
-fabric_loom = "1.10-SNAPSHOT"
+fabric_loom = "1.14-SNAPSHOT"
 minotaur = "2.+"
-shadow = "9.0.0-beta7"
+shadow = "9.3.1"
 
-minecraft = "1.21.5"
-yarn = "1.21.5+build.1"
+minecraft = "1.21.10"
+parchment = "2025.10.12"
 
 fabric_loader = "0.16.14"
-fabric_api = "0.126.0+1.21.5"
+fabric_api = "0.138.4+1.21.10"
 
-specter = "1.1.8"
+greenhouse_config = "3.0.0-alpha.3+1.21.10"
 jda = "5.5.1"
 discord-webhooks = "0.8.4"
 
-styled-chat = "E1RdcKyb"
-pb4-api-predicate = "0.6.0+1.21.2"
-pb4-api-placeholder = "2.6.1+1.21.5"
-pb4-api-playerdata = "0.7.0+1.21.5"
-fabric-permissions = "0.3.3"
+styled-chat = "2.10.0+1.21.9"
+pb4-api-predicate = "0.6.1+1.21.9"
+pb4-api-placeholder = "2.8.0+1.21.9"
+pb4-api-playerdata = "0.9.0+1.21.9"
+fabric-permissions = "0.4.2-patbox.1"
 
 [plugins]
-fabric_loom = { id = "fabric-loom", version.ref = "fabric_loom" }
+fabric_loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "fabric_loom" }
 minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
 [libraries]
 minecraft = { group = "mojang", name = "minecraft", version.ref = "minecraft" }
-yarn = { group = "net.fabricmc", name = "yarn", version.ref = "yarn" }
+parchment = { module = "org.parchmentmc.data:parchment-1.21.10", version.ref = "parchment" }
 
 fabric_loader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabric_loader" }
 fabric_api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabric_api" }
 
-specter_config = { group = "dev.spiritstudios.specter", name = "specter-config", version.ref = "specter" }
-specter_core = { group = "dev.spiritstudios.specter", name = "specter-core", version.ref = "specter" }
-specter_serialization = { group = "dev.spiritstudios.specter", name = "specter-serialization", version.ref = "specter" }
+greenhouse_config_api = { group = "lgbt.greenhouse.config", name = "greenhouse-config-api", version.ref = "greenhouse_config" }
+greenhouse_config = { group = "lgbt.greenhouse.config", name = "greenhouse-config-fabric", version.ref = "greenhouse_config" }
 
 jda = { group = "net.dv8tion", name = "JDA", version.ref = "jda" }
 discordwebhooks = { group = "club.minnced", name = "discord-webhooks", version.ref = "discord-webhooks" }
@@ -43,10 +42,3 @@ pb4-api-predicate = { module = "eu.pb4:predicate-api", version.ref = "pb4-api-pr
 pb4-api-placeholder = { module = "eu.pb4:placeholder-api", version.ref = "pb4-api-placeholder" }
 pb4-api-playerdata = { module = "eu.pb4:player-data-api", version.ref = "pb4-api-playerdata" }
 fabric-permissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabric-permissions" }
-
-[bundles]
-specter = [
-	"specter_serialization",
-	"specter_core",
-	"specter_config"
-]

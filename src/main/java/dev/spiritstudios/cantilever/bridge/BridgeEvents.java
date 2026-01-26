@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,41 +30,41 @@ public class BridgeEvents {
 		if (BridgeEvents.bridge == null)
 			return;
 		ServerLifecycleEvents.SERVER_STARTING.register(
-			Identifier.of(Cantilever.MODID, "after_bridge"),
-			server -> BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.INSTANCE.gameEventFormat.get().formatted("Server starting..."))
+			ResourceLocation.fromNamespaceAndPath(Cantilever.MODID, "after_bridge"),
+			server -> BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server starting..."))
 		);
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server ->
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.INSTANCE.gameEventFormat.get().formatted("Server started"))
+			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server started"))
 		);
 
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			if (scheduler != null) {
 				scheduler.shutdownNow();
 			}
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.INSTANCE.gameEventFormat.get().formatted("Server stopping..."));
+			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server stopping..."));
 		});
 
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-			BridgeEvents.bridge.sendShutdownMessageM2D(CantileverConfig.INSTANCE.gameEventFormat.get().formatted("Server stopped"));
+			BridgeEvents.bridge.sendShutdownMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server stopped"));
 			BridgeEvents.bridge.stop();
 		});
 
 		ServerMessageEvents.GAME_MESSAGE.register((server, message, overlay) -> {
-			if (message.getContent() instanceof BridgeTextContent) return;
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.INSTANCE.gameEventFormat.get().formatted(message.getString()));
+			if (message.getContents() instanceof BridgeTextContent) return;
+			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted(message.getString()));
 		});
 
 		ServerMessageEvents.COMMAND_MESSAGE.register((message, source, parameters) -> {
-			if (message.getContent().getContent() instanceof BridgeTextContent) return;
-			if (source.isExecutedByPlayer()) {
-				BridgeEvents.bridge.sendWebhookMessageM2D(message.getContent(), source.getPlayer());
+			if (message.decoratedContent().getContents() instanceof BridgeTextContent) return;
+			if (source.isPlayer()) {
+				BridgeEvents.bridge.sendWebhookMessageM2D(message.decoratedContent(), source.getPlayer());
 				return;
 			}
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.INSTANCE.gameEventFormat.get().formatted(message.getContent().getString()));
+			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted(message.decoratedContent().getString()));
 		});
 
-		ServerMessageEvents.CHAT_MESSAGE.register((message, user, params) -> BridgeEvents.bridge.sendWebhookMessageM2D(message.getContent(), user));
+		ServerMessageEvents.CHAT_MESSAGE.register((message, user, params) -> BridgeEvents.bridge.sendWebhookMessageM2D(message.decoratedContent(), user));
 	}
 
 	private static ScheduledExecutorService scheduler;
@@ -88,7 +88,8 @@ public class BridgeEvents {
 				String authorName = event.getMember() != null ?
 					event.getMember().getEffectiveName() : event.getAuthor().getEffectiveName();
 
-				if (scheduler == null && CantileverConfig.INSTANCE.d2mMessageDelay.get() > 0) {
+				// TODO: Implement PK API checks.
+				if (scheduler == null && CantileverConfig.HOLDER.get().discordChatProxy().messageDelay() > 0) {
 					scheduler = Executors.newScheduledThreadPool(1, runnable -> {
 						var thread = new Thread(runnable, "Cantilever D2M Message Scheduler");
 						thread.setDaemon(true);
@@ -102,7 +103,7 @@ public class BridgeEvents {
 						event.getChannel().retrieveMessageById(event.getMessageIdLong()).onSuccess(message ->
 							BridgeEvents.bridge.sendUserMessageD2M(authorName, message.getContentDisplay())
 						).complete();
-					}, CantileverConfig.INSTANCE.d2mMessageDelay.get(), TimeUnit.MILLISECONDS);
+					}, CantileverConfig.HOLDER.get().discordChatProxy().messageDelay(), TimeUnit.MILLISECONDS);
 					return;
 				}
 
