@@ -33,7 +33,7 @@ public record CantileverConfig(String botToken,
 				return DataResult.success(activityType);
 			}
 		}
-		return DataResult.error(() -> s + " is not a valid activity type. Accepts [" + Arrays.stream(Activity.ActivityType.values())
+		return DataResult.error(() -> s + " is not a valid activity type. Accepted values: [" + Arrays.stream(Activity.ActivityType.values())
 			.map(activityType1 -> "\"" + activityType1.name().toLowerCase(Locale.ROOT) + "\"")
 			.collect(Collectors.joining()) + "]");
 	}, activityType -> activityType.name().toLowerCase(Locale.ROOT));
