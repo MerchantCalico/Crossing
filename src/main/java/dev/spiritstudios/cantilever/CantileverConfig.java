@@ -151,7 +151,8 @@ public record CantileverConfig(String botToken,
 							}""",
 						Codec.unboundedMap(Codec.STRING, Codec.STRING),
 						Collections.emptyMap(),
-						MinecraftToDiscordFormatting::replacements
+						MinecraftToDiscordFormatting::replacements,
+						DefaultValueCommentSettings.DISABLE
 					)
 			).withMapValue(
 				DiscordChatProxy.class,
