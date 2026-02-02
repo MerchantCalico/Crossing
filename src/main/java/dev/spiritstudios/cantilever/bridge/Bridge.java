@@ -42,7 +42,7 @@ public class Bridge {
 
 		try {
 			if (Objects.equals(CantileverConfig.HOLDER.get().botToken(), "<YOUR_BOT_TOKEN>"))
-				throw new IllegalArgumentException("You forgot to set your bot botToken in the config file! Please create a discord bot application and add it's botToken to the config file. We'll sit here and wait.");
+				throw new IllegalArgumentException("You forgot to set your 'bot_token' in the config file! Please create a Discord bot application and add its token to the config file. We'll sit here and wait.");
 
 			api = JDABuilder
 				.createLight(
