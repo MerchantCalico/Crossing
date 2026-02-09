@@ -44,9 +44,7 @@ public record CantileverConfig(String botToken,
 			.withValue(
 				"bot_token",
 				"""
-					Your Discord Bot's token
-
-					For a guide on how to set up your bot, please refer to the below...
+					Your Discord Bot's token. For a guide on how to set up your bot, please refer to the below...
 					https://docs.spiritstudios.dev/use/cantilever""",
 				Codec.STRING,
 				"<YOUR_BOT_TOKEN>",
@@ -55,8 +53,7 @@ public record CantileverConfig(String botToken,
 			).withValue(
 				"channel_id",
 				"""
-				The ID of the Discord Channel to send messages to and from Minecraft in
-
+				The ID of the Discord Channel to send messages to and from Minecraft in.
 				You can get this value by enabling developer mode in Discord and right-clicking the channel you wish to use as your bridge""",
 				Codec.LONG,
 				123456789L,
@@ -72,7 +69,6 @@ public record CantileverConfig(String botToken,
 						"type",
 						"""
 							The type of botStatus the bot is performing.
-
 							Accepts one of: "playing", "streaming", "listening", "watching", "competing\"""",
 						ACTIVITY_TYPE_CODEC,
 						Activity.ActivityType.PLAYING,
@@ -97,7 +93,6 @@ public record CantileverConfig(String botToken,
 						"discord_message_format",
 						"""
 							The format used when sending messages from the defined Discord channel to Minecraft chat
-
 							Use a first %s in your value to slot in the Discord User's name, and a second %s to slot in the chat status contents""",
 						Codec.STRING,
 						"<@%s> %s",
@@ -106,7 +101,6 @@ public record CantileverConfig(String botToken,
 						"replacements",
 						"""
 							A map of text to text replacements from Discord channel messages to Minecraft chat; useful for Styled Chat Emoji
-
 							Examples:
 							{
 								"obabo": "[REDACTED]"
@@ -126,7 +120,6 @@ public record CantileverConfig(String botToken,
 						"system_message_format",
 						"""
 							The format used when sending system/server messages from Minecraft to Discord
-
 							Use %s in your value to slot in server status text contents""",
 						Codec.STRING,
 						"**%s**",
@@ -145,7 +138,6 @@ public record CantileverConfig(String botToken,
 						"replacements",
 						"""
 							A map of text to text replacements from Minecraft chat messages to Discord channel messages; useful for Styled Chat Emoji
-
 							Example: {
 								":tiny_pineapple:": "<:tiny_pineapple:1383623031791816794>"
 							}""",
