@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +30,7 @@ public class BridgeEvents {
 		if (BridgeEvents.bridge == null)
 			return;
 		ServerLifecycleEvents.SERVER_STARTING.register(
-			ResourceLocation.fromNamespaceAndPath(Cantilever.MODID, "after_bridge"),
+			Identifier.fromNamespaceAndPath(Cantilever.MODID, "after_bridge"),
 			server -> BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server starting..."))
 		);
 

@@ -3,21 +3,21 @@ fabric_loom = "1.14-SNAPSHOT"
 minotaur = "2.+"
 shadow = "9.3.1"
 
-minecraft = "1.21.10"
+minecraft = "1.21.11"
 parchment = "2025.10.12"
 
-fabric_loader = "0.16.14"
-fabric_api = "0.138.4+1.21.10"
+fabric-loader = "0.18.4"
+fabric-api = "0.141.3+1.21.11"
 
-greenhouse_config = "3.0.0-alpha.6+1.21.10"
+greenhouse_config = "3.0.0-alpha.8+1.21.11"
 jda = "5.5.1"
 discord-webhooks = "0.8.4"
 
-styled-chat = "2.10.0+1.21.9"
-pb4-api-predicate = "0.6.1+1.21.9"
-pb4-api-placeholder = "2.8.0+1.21.9"
+styled-chat = "2.11.0+1.21.11"
+pb4-api-predicate = "0.7.0+1.21.11"
+pb4-api-placeholder = "2.8.1+1.21.10"
 pb4-api-playerdata = "0.9.0+1.21.9"
-fabric-permissions = "0.4.2-patbox.1"
+fabric-permissions = "0.6.0-patbox"
 
 [plugins]
 fabric_loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "fabric_loom" }
