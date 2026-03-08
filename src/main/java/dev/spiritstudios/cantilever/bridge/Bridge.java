@@ -31,13 +31,12 @@ import java.util.Optional;
 import static dev.spiritstudios.cantilever.Cantilever.LOGGER;
 
 public class Bridge {
+	private @Nullable MinecraftServer server;
 	private final @Nullable JDA api;
 	private TextChannel bridgeChannel;
 	private WebhookClient bridgeChannelWebhook;
-	public final MinecraftServer server;
 
-	public Bridge(MinecraftServer server) {
-		this.server = server;
+	public Bridge() {
 		JDA api = null;
 
 		try {
@@ -98,8 +97,7 @@ public class Bridge {
 				.onSuccess(webhook -> bridgeChannelWebhook = JDAWebhookClient.from(webhook))
 				.queue();
 		});
-
-		BridgeEvents.init(this);
+		BridgeEvents.initDiscord(this);
 	}
 
 	public void stop() {
@@ -162,8 +160,10 @@ public class Bridge {
 	}
 
 	public void sendBasicMessageD2M(String text) {
+		if (server == null)
+			return;
 		PlayerChatMessage message = PlayerChatMessage.system(filterMessageD2M(text));
-		CommandSourceStack commandSource = this.server.createCommandSourceStack();
+		CommandSourceStack commandSource = server.createCommandSourceStack();
 		Component formattedText;
 		if (FabricLoader.getInstance().isModLoaded("styledchat")) {
 			formattedText = StyledChatUtils.formatMessage(
@@ -176,7 +176,7 @@ public class Bridge {
 		}
 		MutableComponent bridgeText =
 			MutableComponent.create(new BridgeTextContent(formattedText));
-		this.server.getPlayerList().broadcastSystemMessage(bridgeText, false);
+		server.getPlayerList().broadcastSystemMessage(bridgeText, false);
 	}
 
 	public JDA api() {
@@ -189,5 +189,9 @@ public class Bridge {
 
 	public long getWebhookId() {
 		return this.bridgeChannelWebhook.getId();
+	}
+
+	public void setServer(@Nullable MinecraftServer server) {
+		this.server = server;
 	}
 }
