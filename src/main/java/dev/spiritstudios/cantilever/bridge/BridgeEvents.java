@@ -7,81 +7,131 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
-import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import static dev.spiritstudios.cantilever.Cantilever.*;
 
 public class BridgeEvents {
-	@Nullable
-	private static Bridge bridge;
-
-	public static void init(@Nullable Bridge bridge) {
-		BridgeEvents.bridge = bridge;
-
-		registerMinecraftEvents();
-		registerDiscordEvents();
-	}
-
-	private static void registerMinecraftEvents() {
-		if (BridgeEvents.bridge == null)
-			return;
+	public static void initMinecraft() {
 		ServerLifecycleEvents.SERVER_STARTING.register(
-			Identifier.fromNamespaceAndPath(Cantilever.MODID, "after_bridge"),
-			server -> BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server starting..."))
+			id("before_bridge"),
+			server -> {
+				execIfBridgePresent(bridge ->
+					bridge().setServer(server)
+				);
+			}
+		);
+
+		ServerLifecycleEvents.SERVER_STARTING.addPhaseOrdering(
+			id("before_bridge"),
+			id("after_bridge")
+		);
+
+		ServerLifecycleEvents.SERVER_STARTING.register(
+			id("after_bridge"),
+			server ->
+				execIfBridgePresent(bridge ->
+					bridge.sendBasicMessageM2D(
+						CantileverConfig.HOLDER.get()
+							.minecraftToDiscordFormatting()
+							.systemMessageFormat()
+							.formatted("Server starting...")
+					)
+				)
 		);
 
 		ServerLifecycleEvents.SERVER_STARTED.register(server ->
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server started"))
+			execIfBridgePresent(bridge ->
+				bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get()
+					.minecraftToDiscordFormatting()
+					.systemMessageFormat()
+					.formatted("Server started")
+				)
+			)
 		);
 
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			if (scheduler != null) {
 				scheduler.shutdownNow();
 			}
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server stopping..."));
+			execIfBridgePresent(bridge ->
+				bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get()
+					.minecraftToDiscordFormatting()
+					.systemMessageFormat()
+					.formatted("Server stopping...")
+				)
+			);
 		});
 
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-			BridgeEvents.bridge.sendShutdownMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted("Server stopped"));
-			BridgeEvents.bridge.stop();
+			execIfBridgePresent(bridge -> {
+					bridge.sendShutdownMessageM2D(CantileverConfig.HOLDER.get()
+						.minecraftToDiscordFormatting()
+						.systemMessageFormat()
+						.formatted("Server stopped")
+					);
+					bridge.stop();
+				}
+			);
 		});
 
 		ServerMessageEvents.GAME_MESSAGE.register((server, message, overlay) -> {
 			if (message.getContents() instanceof BridgeTextContent) return;
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted(message.getString()));
+			execIfBridgePresent(bridge ->
+					bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get()
+						.minecraftToDiscordFormatting()
+						.systemMessageFormat()
+						.formatted(message.getString())
+					)
+			);
 		});
 
 		ServerMessageEvents.COMMAND_MESSAGE.register((message, source, parameters) -> {
 			if (message.decoratedContent().getContents() instanceof BridgeTextContent) return;
-			if (source.isPlayer()) {
-				BridgeEvents.bridge.sendWebhookMessageM2D(message.decoratedContent(), source.getPlayer());
-				return;
-			}
-			BridgeEvents.bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get().minecraftToDiscordFormatting().systemMessageFormat().formatted(message.decoratedContent().getString()));
+
+			execIfBridgePresent(bridge -> {
+				if (source.isPlayer()) {
+					bridge.sendWebhookMessageM2D(message.decoratedContent(), source.getPlayer());
+					return;
+				}
+				bridge.sendBasicMessageM2D(CantileverConfig.HOLDER.get()
+					.minecraftToDiscordFormatting()
+					.systemMessageFormat()
+					.formatted(message.decoratedContent().getString())
+				);
+			});
 		});
 
-		ServerMessageEvents.CHAT_MESSAGE.register((message, user, params) -> BridgeEvents.bridge.sendWebhookMessageM2D(message.decoratedContent(), user));
+		ServerMessageEvents.CHAT_MESSAGE.register((message, user, params) ->
+			execIfBridgePresent(bridge ->
+				bridge.sendWebhookMessageM2D(message.decoratedContent(), user)
+			)
+		);
 	}
 
 	private static ScheduledExecutorService scheduler;
 
-	private static void registerDiscordEvents() {
-		if (BridgeEvents.bridge == null)
+	public static void initDiscord(Bridge bridge) {
+		if (bridge == null)
 			return;
 
-		JDA api = BridgeEvents.bridge.api();
+		JDA api = bridge.api();
 		if (api == null)
 			return;
 
 		api.addEventListener(new ListenerAdapter() {
 			@Override
 			public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-				if (!BridgeEvents.bridge.channel().map(c -> c == event.getChannel()).orElse(false) ||
-					event.getAuthor().getIdLong() == event.getJDA().getSelfUser().getIdLong() || event.getAuthor().getIdLong() == BridgeEvents.bridge.getWebhookId()) {
+				if (
+					!bridge.channel().map(c -> c == event.getChannel()).orElse(false)
+						|| event.getAuthor().getIdLong() == event.getJDA().getSelfUser().getIdLong()
+						|| event.getAuthor().getIdLong() == bridge.getWebhookId()
+				) {
 					return;
 				}
 
@@ -101,14 +151,20 @@ public class BridgeEvents {
 				if (scheduler != null) {
 					scheduler.schedule(() -> {
 						event.getChannel().retrieveMessageById(event.getMessageIdLong()).onSuccess(message ->
-							BridgeEvents.bridge.sendUserMessageD2M(authorName, message.getContentDisplay())
+							bridge.sendUserMessageD2M(authorName, message.getContentDisplay())
 						).complete();
 					}, CantileverConfig.HOLDER.get().discordChatProxy().messageDelay(), TimeUnit.MILLISECONDS);
 					return;
 				}
 
-				BridgeEvents.bridge.sendUserMessageD2M(authorName, event.getMessage().getContentDisplay());
+				bridge.sendUserMessageD2M(authorName, event.getMessage().getContentDisplay());
 			}
 		});
+	}
+
+	public static void execIfBridgePresent(Consumer<Bridge> consumer) {
+		if (bridge() == null)
+			return;
+		consumer.accept(bridge());
 	}
 }

@@ -1,6 +1,7 @@
 package dev.spiritstudios.cantilever;
 
 import dev.spiritstudios.cantilever.bridge.Bridge;
+import dev.spiritstudios.cantilever.bridge.BridgeEvents;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.fabricmc.api.ModInitializer;
@@ -23,20 +24,8 @@ public class Cantilever implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		CantileverConfig.init();
-
-		ServerLifecycleEvents.SERVER_STARTING.register(
-			id("before_bridge"),
-			server -> {
-				LOGGER.info("Initialising Cantilever...");
-				bridge = new Bridge(server);
-			}
-		);
-
-		ServerLifecycleEvents.SERVER_STARTING.addPhaseOrdering(
-			id("before_bridge"),
-			id("after_bridge")
-		);
+		bridge = new Bridge();
+		BridgeEvents.initMinecraft();
 
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, manager, success) -> {
 			CantileverConfig.HOLDER.reload(null);
