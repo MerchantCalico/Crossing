@@ -39,7 +39,11 @@ public record CantileverConfig(String botToken,
 	}, activityType -> activityType.name().toLowerCase(Locale.ROOT));
 
 	public static final GreenhouseConfigHolder<CantileverConfig> HOLDER = GreenhouseConfigHolder.register(
-		CantileverConfig.class, "cantilever", 1, GreenhouseConfigJsonCLang.INSTANCE, GreenhouseConfigSide.DEDICATED,
+		CantileverConfig.class,
+		"cantilever",
+		1,
+		GreenhouseConfigJsonCLang.INSTANCE,
+		GreenhouseConfigSide.DEDICATED,
 		configBuilder -> configBuilder
 			.withValue(
 				"bot_token",
