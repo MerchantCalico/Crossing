@@ -1,7 +1,6 @@
 package dev.spiritstudios.cantilever;
 
 import dev.spiritstudios.cantilever.bridge.Bridge;
-import lgbt.greenhouse.config.api.v3.GreenhouseConfigEventPhases;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.fabricmc.api.ModInitializer;
@@ -34,10 +33,6 @@ public class Cantilever implements ModInitializer {
 			}
 		);
 
-		ServerLifecycleEvents.SERVER_STARTING.addPhaseOrdering(
-			GreenhouseConfigEventPhases.CONFIG_LOAD_PHASE,
-			id("before_bridge")
-		);
 		ServerLifecycleEvents.SERVER_STARTING.addPhaseOrdering(
 			id("before_bridge"),
 			id("after_bridge")
